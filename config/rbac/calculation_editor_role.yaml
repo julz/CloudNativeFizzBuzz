@@ -1,0 +1,26 @@
+# permissions to do edit calculations.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: calculation-editor-role
+rules:
+- apiGroups:
+  - fizzbuzz.my.domain
+  resources:
+  - calculations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - fizzbuzz.my.domain
+  resources:
+  - calculations/status
+  verbs:
+  - get
+  - patch
+  - update

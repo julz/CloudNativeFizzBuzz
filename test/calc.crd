@@ -1,0 +1,9 @@
+apiVersion: fizzbuzz.my.domain/v1beta1
+kind: Calculation
+metadata:
+  name: four-times-five
+spec:
+  calc: "4 * foo"
+  vars:
+    - name: foo
+      value: 6

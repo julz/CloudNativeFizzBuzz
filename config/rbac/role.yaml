@@ -1,0 +1,48 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - fizzbuzz.my.domain
+  resources:
+  - calculations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - fizzbuzz.my.domain
+  resources:
+  - calculations/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - fizzbuzz.my.domain
+  resources:
+  - queries
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - fizzbuzz.my.domain
+  resources:
+  - queries/status
+  verbs:
+  - get
+  - patch
+  - update

@@ -1,0 +1,10 @@
+domain: my.domain
+repo: github.com/julz/cloudnativefizzbuzz
+resources:
+- group: fizzbuzz
+  kind: Query
+  version: v1beta1
+- group: fizzbuzz
+  kind: Calculation
+  version: v1beta1
+version: "2"
