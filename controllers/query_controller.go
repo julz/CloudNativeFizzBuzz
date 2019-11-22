@@ -18,9 +18,13 @@ package controllers
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-logr/logr"
+	"k8s.io/apimachinery/pkg/api/errors"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -39,14 +43,60 @@ type QueryReconciler struct {
 
 func (r *QueryReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
-	_ = r.Log.WithValues("query", req.NamespacedName)
+	log := r.Log.WithValues("query", req.NamespacedName)
 
 	query := &fizzbuzzv1beta1.Query{}
 	if err := r.Get(ctx, req.NamespacedName, query); client.IgnoreNotFound(err) != nil {
 		return ctrl.Result{}, err
 	}
 
+	log.Info("reconciling query", "input", query.Spec.Input)
+
+	calc := &fizzbuzzv1beta1.Calculation{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      query.Name + "-fizz",
+			Namespace: query.Namespace,
+		},
+		Spec: fizzbuzzv1beta1.CalculationSpec{
+			Calc: "input % 3",
+			Vars: []fizzbuzzv1beta1.Var{{
+				Name:  "input",
+				Value: query.Spec.Input,
+			}},
+		},
+	}
+
+	if err := r.Create(ctx, calc); err != nil {
+		if !errors.IsAlreadyExists(err) {
+			return ctrl.Result{}, err
+		}
+	} else {
+		log.Info("created calculation, waiting for result")
+		return ctrl.Result{RequeueAfter: 500 * time.Millisecond}, nil
+	}
+
+	if err := r.Get(ctx, types.NamespacedName{Namespace: query.Namespace, Name: query.Name + "-fizz"}, calc); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	if len(calc.Status.Conditions) == 0 {
+		log.Info("calculation not ready, requeuing query")
+		return ctrl.Result{Requeue: true}, nil
+	}
+
+	log.Info("calculation ready", "ready", calc.Status.Result)
+	if calc.Status.Result == "0" {
+		// fizz!
+		log.Info(".. and it's a fizz")
+		query.Status.Fizz = true
+		query.Status.Conditions = []fizzbuzzv1beta1.QueryCondition{}
+		if err := r.Status().Update(ctx, query); err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
 	return ctrl.Result{}, nil
+
 }
 
 func (r *QueryReconciler) SetupWithManager(mgr ctrl.Manager) error {

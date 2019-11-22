@@ -1,9 +1,20 @@
 apiVersion: fizzbuzz.my.domain/v1beta1
-kind: Calculation
+kind: Query
 metadata:
-  name: four-times-five
+  name: four
 spec:
-  calc: "4 * foo"
-  vars:
-    - name: foo
-      value: 6
+  input: 4
+---
+apiVersion: fizzbuzz.my.domain/v1beta1
+kind: Query
+metadata:
+  name: five
+spec:
+  input: 5
+---
+apiVersion: fizzbuzz.my.domain/v1beta1
+kind: Query
+metadata:
+  name: six
+spec:
+  input: 6

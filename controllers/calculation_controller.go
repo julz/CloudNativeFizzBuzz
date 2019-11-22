@@ -17,14 +17,17 @@ package controllers
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-logr/logr"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/julz/calc"
 	fizzbuzzv1beta1 "github.com/julz/cloudnativefizzbuzz/api/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // CalculationReconciler reconciles a Calculation object
@@ -57,7 +60,15 @@ func (r *CalculationReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 	}
 
 	calculation.Status.Result = result
-	calculation.Status.Conditions = []fizzbuzzv1beta1.CalculationCondition{}
+	calculation.Status.Conditions = []fizzbuzzv1beta1.CalculationCondition{
+		{
+			LastTransitionTime: metav1.Time{Time: time.Now()},
+			Type:               "CalculationReady",
+			Status:             v1.ConditionTrue,
+			Message:            "Calculation complete",
+			Reason:             "CalculationComplete",
+		},
+	}
 	if err := r.Status().Update(ctx, calculation); client.IgnoreNotFound(err) != nil {
 		return ctrl.Result{}, err
 	}

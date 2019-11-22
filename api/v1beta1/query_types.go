@@ -28,7 +28,7 @@ type QuerySpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of Query. Edit Query_types.go to remove/update
-	InputValue int `json:"inputValue,omitempty"`
+	Input int `json:"input,omitempty"`
 }
 
 // QueryStatus defines the observed state of Query
@@ -50,6 +50,7 @@ type QueryCondition struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // Query is the Schema for the queries API
 type Query struct {

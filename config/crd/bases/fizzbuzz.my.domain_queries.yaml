@@ -15,6 +15,8 @@ spec:
     plural: queries
     singular: query
   scope: ""
+  subresources:
+    status: {}
   validation:
     openAPIV3Schema:
       description: Query is the Schema for the queries API
@@ -34,7 +36,7 @@ spec:
         spec:
           description: QuerySpec defines the desired state of Query
           properties:
-            inputValue:
+            input:
               description: Foo is an example field of Query. Edit Query_types.go to
                 remove/update
               type: integer
